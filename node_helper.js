@@ -63,7 +63,8 @@ module.exports = NodeHelper.create({
         hostname: config.plex.hostname !==null ? config.plex.hostname : "localhost",
         port: config.plex.port ? config.plex.port  : 32400,
         username: config.plex.username,
-        password: config.plex.password
+        password: config.plex.password,
+        tag: config.plex.tag ? config.plex.tag : 'favorites',
       };
 
       console.log("Create PLEX Client : ", options);
@@ -73,25 +74,55 @@ module.exports = NodeHelper.create({
 
     var self = this;
     var imageList = [];
-    return new Promise((resolve, reject) => {
-      // Get list of playlists
-      api.query('/playlists').then(function (results2) {
 
-        // Find playlist of photos which is Favorites
-        var r2 = results2.MediaContainer.Metadata.find(x => { return (x.specialPlaylistType == "favorites" && x.playlistType == "photo"); });
+    if (options.tag == "favorites") {
+      return new Promise((resolve, reject) => {
+        // Get list of playlists
+        api.query("/playlists").then(function (results2) {
+          console.log(results2)
 
-        // Get all items in playlist
-        api.query(r2.key).then(function (results3) {
-          (results3.MediaContainer.Metadata).forEach(e => {
-            // Get Url to each item and save
-            var url = "http://" + config.plex.hostname + ":" + config.plex.port + e.Media[0].Part[0].key + "?X-Plex-Token=" + api.authToken;
-            console.log(url);
-            imageList.push(url);
+          // Find playlist of photos which is Favorites
+          var r2 = results2.MediaContainer.Metadata.find(x => { return (x.specialPlaylistType == "favorites" && x.playlistType == "photo"); });
+
+          // Get all items in playlist
+          api.query(r2.key).then(function (results3) {
+            (results3.MediaContainer.Metadata).forEach(e => {
+              // Get Url to each item and save
+              var url = "http://" + config.plex.hostname + ":" + config.plex.port + e.Media[0].Part[0].key + "?X-Plex-Token=" + api.authToken;
+              console.log(url);
+              imageList.push(url);
+            });
+            return resolve(imageList);
           });
-          return resolve(imageList);
         });
       });
-    });
+    } else {
+      return new Promise((resolve, reject) => {
+        console.log("tag: " + options.tag);
+        // Get list of sections
+        api.query("/library/sections").then(function (directories) {
+
+          // Find section which is Photos
+          var r = directories.MediaContainer.Directory.find(x => { return (x.type == "photo" && x.title == "Photos"); });
+          console.log("key: " + r.key);
+
+          uri = "/library/sections/" + r.key + "/all/?tag=" + config.plex.tag
+          console.log("uri: " + uri)
+
+          // Get all items in section with appropriate tag from config.
+          api.query(uri).then(function (results3) {
+            (results3.MediaContainer.Metadata).forEach(e => {
+              // Get Url to each item and save
+              var url = "http://" + config.plex.hostname + ":" + config.plex.port + e.Media[0].Part[0].key + "?X-Plex-Token=" + api.authToken;
+              console.log(url);
+              imageList.push(url);
+            });
+            return resolve(imageList);
+          });
+        });
+      });      
+    }
+
   },
 
 
