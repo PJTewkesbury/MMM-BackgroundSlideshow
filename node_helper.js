@@ -63,8 +63,7 @@ module.exports = NodeHelper.create({
         hostname: config.plex.hostname !==null ? config.plex.hostname : "localhost",
         port: config.plex.port ? config.plex.port  : 32400,
         username: config.plex.username,
-        password: config.plex.password,
-        tag: config.plex.tag ? config.plex.tag : 'favorites',
+        password: config.plex.password
       };
 
       console.log("Create PLEX Client : ", options);
@@ -75,14 +74,15 @@ module.exports = NodeHelper.create({
     var self = this;
     var imageList = [];
 
-    if (options.tag == "favorites") {
+    if (config.collection.type == "album") {
+      console.log("Starting album path.");
       return new Promise((resolve, reject) => {
         // Get list of playlists
         api.query("/playlists").then(function (results2) {
           console.log(results2)
 
           // Find playlist of photos which is Favorites
-          var r2 = results2.MediaContainer.Metadata.find(x => { return (x.specialPlaylistType == "favorites" && x.playlistType == "photo"); });
+          var r2 = results2.MediaContainer.Metadata.find(x => { return (x.title == config.collection.title); });
 
           // Get all items in playlist
           api.query(r2.key).then(function (results3) {
@@ -96,21 +96,60 @@ module.exports = NodeHelper.create({
           });
         });
       });
-    } else {
-      return new Promise((resolve, reject) => {
-        console.log("tag: " + options.tag);
+    } else if (config.collection.type == "tag") {
+      console.log("Starting tag path.");
+      return new Promise((resolve, reject) => {  
+        console.log("tag: " + config.collection.title);
+        uri = "/library/sections"
         // Get list of sections
-        api.query("/library/sections").then(function (directories) {
+
+        api.query(uri).then(function (directories) {
+          console.log("uri: " + uri);
 
           // Find section which is Photos
-          var r = directories.MediaContainer.Directory.find(x => { return (x.type == "photo" && x.title == "Photos"); });
+          var r = directories.MediaContainer.Directory.find(x => { return (x.type == "photo" && x.title == config.collection.section); });
+          //console.dir(r);
           console.log("key: " + r.key);
 
-          uri = "/library/sections/" + r.key + "/all/?tag=" + config.plex.tag
-          console.log("uri: " + uri)
+          uri = uri + "/" + r.key + "/tag";
+          console.log("uri: " + uri);
+          // Find tag id
+          api.query(uri).then(function (tags) {
+            console.log("find title: " + config.collection.title)
+            var tag = tags.MediaContainer.Directory.find(x => { return (x.title == config.collection.title); });
+            console.log(tag);
+            console.log("tagURI: " + tag.fastkey)
+            
+            uri = tag.fastKey;
+            console.log("uri: " + uri)
+            
+            // Get all items in section with appropriate tag from config.
+            api.query(uri).then(function (results3) {
+              (results3.MediaContainer.Metadata).forEach(e => {
+                // Get Url to each item and save
+                var url = "http://" + config.plex.hostname + ":" + config.plex.port + e.Media[0].Part[0].key + "?X-Plex-Token=" + api.authToken;
+                console.log(url);
+                imageList.push(url);
+                console.log("summary: " + e.summary);
+              });
+              return resolve(imageList);
+            });
+          });
+        });
+      });      
+    } else {
+      return new Promise((resolve, reject) => {
+        //Default to favorites.
+        console.log("Starting favorites path.");
+        // Get list of playlists
+        api.query("/playlists").then(function (results2) {
+          console.log(results2)
 
-          // Get all items in section with appropriate tag from config.
-          api.query(uri).then(function (results3) {
+          // Find playlist of photos which is Favorites
+          var r2 = results2.MediaContainer.Metadata.find(x => { return (x.specialPlaylistType == "favorites" && x.playlistType == "photo"); });
+
+          // Get all items in playlist
+          api.query(r2.key).then(function (results3) {
             (results3.MediaContainer.Metadata).forEach(e => {
               // Get Url to each item and save
               var url = "http://" + config.plex.hostname + ":" + config.plex.port + e.Media[0].Part[0].key + "?X-Plex-Token=" + api.authToken;
