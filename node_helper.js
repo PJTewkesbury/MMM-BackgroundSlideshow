@@ -62,9 +62,15 @@ module.exports = NodeHelper.create({
       var options = {
         hostname: config.plex.hostname !==null ? config.plex.hostname : "localhost",
         port: config.plex.port ? config.plex.port  : 32400,
-        username: config.plex.username,
-        password: config.plex.password
       };
+
+      if (typeof config.plex.apiToken !== 'undefined' && config.plex.apiToken !== null){
+        options.token = config.plex.apiToken;
+      }
+      else{
+        options.username = config.plex.username;
+        options.password = config.plex.password;
+      }
 
       console.log("Create PLEX Client : ", options);
       api = new PlexAPI(options);
