@@ -57,11 +57,10 @@ module.exports = NodeHelper.create({
 
   gatherPlexImageList: function (config) {
 
-    if (api===null)
-    {
+    if (api === null) {
       var options = {
-        hostname: config.plex.hostname !==null ? config.plex.hostname : "localhost",
-        port: config.plex.port ? config.plex.port  : 32400,
+        hostname: config.plex.hostname !== null ? config.plex.hostname : "localhost",
+        port: config.plex.port ? config.plex.port : 32400,
         username: config.plex.username,
         password: config.plex.password
       };
@@ -208,8 +207,7 @@ module.exports = NodeHelper.create({
       var imageList = [];
       this.gatherPlexImageList(payload).then((r) => {
         imageList = r;
-        if (config.randomizeImageOrder)
-        {
+        if (config.randomizeImageOrder) {
           imageList = this.shuffleArray(imageList);
         }
 
