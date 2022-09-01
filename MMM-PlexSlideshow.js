@@ -30,7 +30,7 @@ function httpGetAsync(theUrl, callback) {
 	xmlHttp.send(null);
 }
 
-function getOrientation(file, callback) {	
+function getOrientation(file, callback) {
 	var reader = new FileReader();
 	reader.onload = function (e) {
 		var view = new DataView(e.target.result);
@@ -114,7 +114,9 @@ Module.register("MMM-PlexSlideshow", {
 		this.config.identifier = this.identifier;
 		// set no error
 		this.errorMessage = null;
-		if (this.config.plex.hostname.length == 0 || this.config.plex.username.length == 0 || this.config.plex.password.length == 0) {
+		if (this.config.plex.hostname.length == 0
+			// || this.config.plex.username.length == 0 || this.config.plex.password.length == 0
+		) {
 			this.errorMessage =
 				"MMM-PlexSlideshow: Missing required parameter.";
 		} else {
@@ -237,16 +239,14 @@ Module.register("MMM-PlexSlideshow", {
 					// Read file bytes
 					httpGetAsync(this.src, res => {
 						o = res;
-						console.log("Image : "+this.src);
-						console.log("Orientation : "+res);
-						if (o==8)
-						{
+						console.log("Image : " + this.src);
+						console.log("Orientation : " + res);
+						if (o == 8) {
 							console.log("Rotating image");
-							div1.style.transform="rotate(90deg)";
+							div1.style.transform = "rotate(90deg)";
 						}
-						else
-						{
-							div1.style.transform="";
+						else {
+							div1.style.transform = "";
 						}
 					});
 
@@ -261,6 +261,9 @@ Module.register("MMM-PlexSlideshow", {
 				this.imageIndex = 0;
 				this.updateImageList();
 			}
+		}
+		else {
+			this.updateImageList();
 		}
 	},
 

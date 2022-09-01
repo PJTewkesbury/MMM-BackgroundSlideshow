@@ -62,11 +62,22 @@ module.exports = NodeHelper.create({
         hostname: config.plex.hostname !== null ? config.plex.hostname : "localhost",
         port: config.plex.port ? config.plex.port : 32400,
         username: config.plex.username,
-        password: config.plex.password
+        // password: config.plex.password,
+        token: config.plex.authToken,
+        options: {
+          identifier: '9d478fe9-924e-4e06-aaa0-ed7dbb850c1b',
+          product: 'MMM-PlexSlideShow',
+          version: '1.1',
+          device: 'Raspberry PI',
+          deviceName: 'ClockPI',
+          platform: 'NodeJS',
+          platformVersion: '1.0',
+        }
       };
 
       console.log("Create PLEX Client : ", options);
       api = new PlexAPI(options);
+      api.authToken = config.plex.authToken;
       console.log("PLEX Client created");
     }
 
@@ -74,8 +85,8 @@ module.exports = NodeHelper.create({
     var imageList = [];
     return new Promise((resolve, reject) => {
       // Get list of playlists
-      api.query('/playlists').then(function (results2) {
-
+      // api.query('/playlists?playlistType=photo&includeCollections=1&includeExternalMedia=1&includeAdvanced=1&includeMeta=1&X-Plex-Container-Start=0&X-Plex-Container-Size=50').then(function (results2) {
+      api.query('/playlists?playlistType=photo&X-Plex-Container-Start=0&X-Plex-Container-Size=500').then(function (results2) {
         // Find playlist of photos which is Favorites
         var r2 = results2.MediaContainer.Metadata.find(x => { return (x.specialPlaylistType == "favorites" && x.playlistType == "photo"); });
 

@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "plex-api": "^5.2.3"
+    "plex-api": "^5.3.2"
   }
 }
