@@ -50,15 +50,15 @@ modules: [
     config: {
 	  plex: {
 		  hostname:"PlexServerName Or IP",
-		  port:32400,
-		  username:"",
-		  password:"",
+		  port:32400,		  
+		  authToken:"", // Find this value in your Plex Server 'Preferences.xml' - see https://www.plexopedia.com/plex-media-server/general/plex-token/
 		},
 		transitionImages: true,
     }
   }
 ];
 ```
+
 
 ## Notification options
 
@@ -79,8 +79,7 @@ The following properties can be configured:
 |plex   | The connection details for your PLEX server. This is a require value. This is a array of values. See below. |
 |plex.hostname | The IP address or hostname of your PLEX server. This is a required value|
 |plex.port | This is the port number that your PLEX server runs on. This is required and it's value is normally 32400|
-|plex.username | The username of an account that can access the PLEX server.  This is a required value|
-|plex.password | The password for the username of an account that can access the PLEX server. This is a required value|
+|plex.authToken | The plex server AuthToken. This is a required value. see https://www.plexopedia.com/plex-media-server/general/plex-token/|
 |slideshowSpeed|Integer value, the length of time to show one image before switching to the next, in milliseconds. <br> Default value: 10000 (Which is 10 seconds). <br>This value is __OPTIONAL__|
 |transitionSpeed|Transition speed from one image to the other, transitionImages must be true. Must be a valid css transition duration.<br> Example: '2s'. <br>This value is __OPTIONAL__|
 |backgroundSize|The sizing of the background image. Values can be: <ul><li>cover: Resize the background image to cover the entire container, even if it has to stretch the image or cut a little bit off one of the edges. </il><li>contain: Resize the background image to make sure the image is fully visible.</il></ul> Default value:'cover'. This value is __OPTIONAL___|
