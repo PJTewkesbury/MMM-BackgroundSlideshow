@@ -151,7 +151,7 @@ module.exports = NodeHelper.create({
       var imageList = [];
       this.gatherPlexImageList(payload).then((r) => {
         imageList = r;
-        if (config.randomizeImageOrder) {
+        if (payload.randomizeImageOrder) {
           imageList = this.shuffleArray(imageList);
         }
 
